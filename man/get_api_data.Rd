@@ -8,6 +8,8 @@ get_api_data(name, key = Sys.getenv("lakeAPIkey"))
 }
 \arguments{
 \item{name}{One of the known API names like "wholesale_prices"}
+
+\item{key}{API key. Default reads from the lakeAPIkey environment variable.}
 }
 \value{
 Data frame from API

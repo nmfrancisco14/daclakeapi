@@ -7,7 +7,7 @@
 get_all_api_data(key = Sys.getenv("lakeAPIkey"))
 }
 \arguments{
-\item{key}{API key. Default reads from the RICELYTICS_API_KEY environment variable.}
+\item{key}{API key. Default reads from the lakeAPIkey environment variable.}
 }
 \value{
 A named list of data frames.

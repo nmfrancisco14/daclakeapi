@@ -3,7 +3,7 @@
 #' This function retrieves data from all registered default API endpoints.
 #' You can extend this by adding more with `add_api_url()`.
 #'
-#' @param key API key. Default reads from the RICELYTICS_API_KEY environment variable.
+#' @param key API key. Default reads from the lakeAPIkey environment variable.
 #'
 #' @return A named list of data frames.
 #' @export
