@@ -1,0 +1,20 @@
+Package: daclakeapi
+Type: Package
+Title: daclakeapi: Access and Analyze Rice Data from APIs
+Version: 0.1.0
+Authors@R: 
+    person(given = "Nefriend", 
+           family = "Francisco", 
+           email = "nefriendfrancisco@gmail.com", 
+           role = c("aut", "cre"))
+Description: Provides access to various rice-related data lake datasets via API, including wholesale, retail, farmgate prices, exchange rates, and FOB prices. Users can retrieve data by endpoint or in bulk, extend the API registry with their own endpoints, and summarize recent update dates for each dataset.
+License: MIT + file LICENSE
+Encoding: UTF-8
+LazyData: true
+Imports: 
+    httr,
+    jsonlite,
+    purrr,
+    tibble
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.3.2

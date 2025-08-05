@@ -1,0 +1,40 @@
+#' Helper function to call API and return data frame
+#'
+#' @param url API endpoint
+#' @param key API key
+#' @param mute_onSuccess Logical to suppress messages
+#'
+#' @return Data frame of parsed API result
+
+data_api <- function(url, key, mute_onSuccess = TRUE) {
+  # Send GET request with key as query parameter
+  response <- httr::GET(
+    url,
+    httr::add_headers("Content-Type" = "application/json"),
+    query = list(key = key)
+  )
+
+  if (httr::status_code(response) == 200) {
+    if (!mute_onSuccess) {
+      print("Request was successful!")
+    }
+
+    data <- httr::content(response, "text", encoding = "UTF-8")
+
+    # print(data)
+
+    json_data <- jsonlite::fromJSON(data, flatten = TRUE)
+    data_df <- as.data.frame(json_data)
+
+    if (!mute_onSuccess) {
+      print(head(data_df))
+    }
+  } else {
+    print(paste("Request failed with status:", httr::status_code(response)))
+    print(httr::content(response, "text", encoding = "UTF-8"))
+    data_df <- NULL  # Prevent returning undefined object
+  }
+
+  return(data_df)
+}
+
