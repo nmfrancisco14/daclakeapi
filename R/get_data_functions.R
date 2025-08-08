@@ -5,6 +5,12 @@
 #'
 #'
 get_api_data <- function(name, key = Sys.getenv("lakeAPIkey")) {
+
   url <- get_api_url(name)
+
+  if (name == "urea_use_sem") {
+    data_api_ureasem(key)
+  } else {
   data_api(url, key)
+  }
 }
