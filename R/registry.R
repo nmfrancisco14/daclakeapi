@@ -1,6 +1,8 @@
 # Default API URL map
 
 .default_api_urls <- list(
+  pay_psa = "https://ricelytics.philrice.gov.ph/data_lake/api/dynamic/kpi_pay",
+  pay_prism = "https://ricelytics.philrice.gov.ph/data_lake/api/dynamic/kpi_pay_prism",
   wholesale_prices = "https://ricelytics.philrice.gov.ph/data_lake/api/wholesale_prices",
   fao_fob_prices = "https://ricelytics.philrice.gov.ph/data_lake/api/fob_prices",
   exrates = "https://ricelytics.philrice.gov.ph/data_lake/api/exchange_rate",
