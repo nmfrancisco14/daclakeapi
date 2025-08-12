@@ -4,7 +4,7 @@
 \alias{get_api_data}
 \title{Get API data by name}
 \usage{
-get_api_data(name, key = Sys.getenv("lakeAPIkey"))
+get_api_data(name, key = Sys.getenv("lakeAPIkey"), type = "small")
 }
 \arguments{
 \item{name}{One of the known API names like "wholesale_prices"}

@@ -4,12 +4,12 @@
 #' @return Data frame from API
 #'
 #'
-get_api_data <- function(name, key = Sys.getenv("lakeAPIkey")) {
+get_api_data <- function(name, key = Sys.getenv("lakeAPIkey"),type= "small") {
 
   url <- get_api_url(name)
 
-  if (name == "urea_use_sem") {
-    data_api_ureasem(key)
+  if (type =="large") {
+    data_api2(url,key)
   } else {
   data_api(url, key)
   }
