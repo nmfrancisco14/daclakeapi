@@ -24,7 +24,7 @@ data_api2 <- function(url,key, mute_onSuccess = TRUE) {
     data <- httr::content(response, "text", encoding = "UTF-8")
 
 
-    df <- read_csv(I(data))
+    df <- readr::read_csv(I(data))
 
 
     if (!mute_onSuccess) {

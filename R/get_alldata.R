@@ -12,7 +12,8 @@ get_all_api_data <- function(key = Sys.getenv("lakeAPIkey")) {
   api_names <- names(.api_url_registry)
 
   # Retrieve data from each endpoint
-  data_list <- purrr::map(api_names, ~ get_api_data(.x, key = key))
+  data_list <- purrr::map(api_names, ~ get_api_data(.x, key = key, 
+                                                    type = dplyr::if_else(.x %in% c("urea_use_sem","pay_prism_mon"),"large","small")))
 
   # Name the list with the API names
   names(data_list) <- api_names
