@@ -1,4 +1,4 @@
-#' Helper function to call API and return data frame SPECIFICALLY FOR UREA SEM DATA
+#' Helper function to call API and return data frame SPECIFICALLY FOR large dataset
 #'
 #' @param url API endpoint
 #' @param key API key
@@ -7,10 +7,10 @@
 #' @return Data frame of parsed API result
 #'
 
-data_api_ureasem <- function(key, mute_onSuccess = TRUE) {
+data_api2 <- function(url,key, mute_onSuccess = TRUE) {
 
   response <- httr::GET(
-    "https://ricelytics.philrice.gov.ph/data_lake/api/dynamic/analyticsapi_ureaUseSemestral",
+    url,
     httr::add_headers("Content-Type" = "application/json"),
     query = list(key = key)
   )
