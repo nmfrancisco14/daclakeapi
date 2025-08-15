@@ -24,7 +24,7 @@
   temp = "https://ricelytics.philrice.gov.ph/data_lake/api/dynamic/analyticsapi_temperature",
   urea_price = "https://ricelytics.philrice.gov.ph/data_lake/api/dynamic/analyticsapi_ureaPrices",
   urea_use = "https://ricelytics.philrice.gov.ph/data_lake/api/dynamic/analyticsapi_ureaUse",
-  urea_use_sem = "https://ricelytics.philrice.gov.ph/data_lake/api/dynamic/analyticsapi_ureaUseSemestral",
+  # urea_use_sem = "https://ricelytics.philrice.gov.ph/data_lake/api/dynamic/analyticsapi_ureaUseSemestral",
   us_cpi = "https://ricelytics.philrice.gov.ph/data_lake/api/dynamic/analyticsapi_us_cpi",
   imports = "https://ricelytics.philrice.gov.ph/data_lake/api/dynamic/analyticsapi_imports_nrp",
   totalstocks ="https://ricelytics.philrice.gov.ph/data_lake/api/dynamic/kpi_ricestocks"
