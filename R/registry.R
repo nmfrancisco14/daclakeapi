@@ -21,7 +21,7 @@
   rice_consum= "https://ricelytics.philrice.gov.ph/data_lake/api/dynamic/analyticsapi_riceConsumption",
   seed_class = "https://ricelytics.philrice.gov.ph/data_lake/api/dynamic/analyticsapi_seedClass",
   soil_type = "https://ricelytics.philrice.gov.ph/data_lake/api/dynamic/analyticsapi_soilType",
-  temp = "https://ricelytics.philrice.gov.ph/data_lake/api/dynamic/analyticsapi_temperature",
+  # temp = "https://ricelytics.philrice.gov.ph/data_lake/api/dynamic/analyticsapi_temperature",
   urea_price = "https://ricelytics.philrice.gov.ph/data_lake/api/dynamic/analyticsapi_ureaPrices",
   urea_use = "https://ricelytics.philrice.gov.ph/data_lake/api/dynamic/analyticsapi_ureaUse",
   # urea_use_sem = "https://ricelytics.philrice.gov.ph/data_lake/api/dynamic/analyticsapi_ureaUseSemestral",
