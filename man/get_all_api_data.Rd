@@ -4,10 +4,15 @@
 \alias{get_all_api_data}
 \title{Get all built-in API data}
 \usage{
-get_all_api_data(key = Sys.getenv("lakeAPIkey"))
+get_all_api_data(
+  key = Sys.getenv("lakeAPIkey"),
+  list.names = names(.api_url_registry)
+)
 }
 \arguments{
 \item{key}{API key. Default reads from the lakeAPIkey environment variable.}
+
+\item{list.names}{list of names of dataframe to get from API. run \code{list_api_endpoints()} to list all possible API}
 }
 \value{
 A named list of data frames.
