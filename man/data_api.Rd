@@ -11,10 +11,27 @@ data_api(url, key, filters = NULL, structure = "json", mute_onSuccess = TRUE)
 
 \item{key}{API key}
 
-\item{filters}{Optional list of filter conditions to apply to the query. Each
-element should be a named list with fields \code{column}, \code{operator}, and
-\code{value}. Can also be a JSON string representation of such a list.
-Defaults to \code{NULL} (no filters applied).}
+\item{filters}{Optional list of up to \strong{3} filter conditions used to
+subset the API results server-side. Each condition is a named list with
+three fields:
+\describe{
+\item{\code{column}}{Character. The name of the column/variable to filter on.}
+\item{\code{operator}}{Character. The comparison operator to apply. Common
+values include \code{"="} (equals), \code{"!="} (not equals), \code{">"}, \code{">="},
+\code{"<"}, and \code{"<="}.}
+\item{\code{value}}{The value to compare against. Can be a character string
+or numeric depending on the column type.}
+}
+Filters are combined with a logical AND. A maximum of 3 filters is
+supported. Pass \code{NULL} (default) to return all records without filtering.
+
+Example:
+
+\if{html}{\out{<div class="sourceCode r">}}\preformatted{filters = list(
+  list(column = "percap_type", operator = "=", value = "FIES"),
+  list(column = "year",        operator = "=", value = 2025)
+)
+}\if{html}{\out{</div>}}}
 
 \item{structure}{Character string specifying the response format. Use
 \code{"json"} (default) to return a data frame parsed from JSON, or \code{"csv"}

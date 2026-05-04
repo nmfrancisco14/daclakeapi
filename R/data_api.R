@@ -2,10 +2,27 @@
 #'
 #' @param url API endpoint
 #' @param key API key
-#' @param filters Optional list of filter conditions to apply to the query. Each
-#'   element should be a named list with fields `column`, `operator`, and
-#'   `value`. Can also be a JSON string representation of such a list.
-#'   Defaults to `NULL` (no filters applied).
+#' @param filters Optional list of up to **3** filter conditions used to
+#'   subset the API results server-side. Each condition is a named list with
+#'   three fields:
+#'   \describe{
+#'     \item{`column`}{Character. The name of the column/variable to filter on.}
+#'     \item{`operator`}{Character. The comparison operator to apply. Common
+#'       values include `"="` (equals), `"!="` (not equals), `">"`, `">="`,
+#'       `"<"`, and `"<="`.}
+#'     \item{`value`}{The value to compare against. Can be a character string
+#'       or numeric depending on the column type.}
+#'   }
+#'   Filters are combined with a logical AND. A maximum of 3 filters is
+#'   supported. Pass `NULL` (default) to return all records without filtering.
+#'
+#'   Example:
+#'   ```r
+#'   filters = list(
+#'     list(column = "percap_type", operator = "=", value = "FIES"),
+#'     list(column = "year",        operator = "=", value = 2025)
+#'   )
+#'   ```
 #' @param structure Character string specifying the response format. Use
 #'   `"json"` (default) to return a data frame parsed from JSON, or `"csv"`
 #'   to return a data frame read from delimited text.
