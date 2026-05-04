@@ -4,17 +4,28 @@
 \alias{data_api}
 \title{Helper function to call API and return data frame}
 \usage{
-data_api(url, key, mute_onSuccess = TRUE)
+data_api(url, key, filters = NULL, structure = "json", mute_onSuccess = TRUE)
 }
 \arguments{
 \item{url}{API endpoint}
 
 \item{key}{API key}
 
-\item{mute_onSuccess}{Logical to suppress messages}
+\item{filters}{Optional list of filter conditions to apply to the query. Each
+element should be a named list with fields \code{column}, \code{operator}, and
+\code{value}. Can also be a JSON string representation of such a list.
+Defaults to \code{NULL} (no filters applied).}
+
+\item{structure}{Character string specifying the response format. Use
+\code{"json"} (default) to return a data frame parsed from JSON, or \code{"csv"}
+to return a data frame read from delimited text.}
+
+\item{mute_onSuccess}{Logical to suppress messages on a successful request.
+Defaults to \code{TRUE}.}
 }
 \value{
-Data frame of parsed API result
+A data frame of the parsed API result, or \code{NULL} if the request
+fails.
 }
 \description{
 Helper function to call API and return data frame
