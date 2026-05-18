@@ -2,10 +2,13 @@
 % Please edit documentation in R/add_api_url.R
 \name{list_api_endpoints}
 \alias{list_api_endpoints}
-\title{List available API names}
+\title{List all dataset names in the registry}
 \usage{
 list_api_endpoints()
 }
+\value{
+A character vector of dataset names (may include \code{NA} entries).
+}
 \description{
-List available API names
+List all dataset names in the registry
 }

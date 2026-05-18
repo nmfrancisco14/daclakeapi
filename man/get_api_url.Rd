@@ -2,16 +2,17 @@
 % Please edit documentation in R/add_api_url.R
 \name{get_api_url}
 \alias{get_api_url}
-\title{Get the API URL by name}
+\title{Get the API URL for a dataset by exact dataset name or row index}
 \usage{
 get_api_url(name)
 }
 \arguments{
-\item{name}{The name of the API (e.g. "wholesale_prices")}
+\item{name}{Character. The exact dataset name as listed in the registry
+(see \code{get_api_registry()}), or an integer row index.}
 }
 \value{
-The API URL
+A single character string with the API URL.
 }
 \description{
-Get the API URL by name
+Get the API URL for a dataset by exact dataset name or row index
 }

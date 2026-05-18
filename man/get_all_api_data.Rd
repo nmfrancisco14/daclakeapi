@@ -2,22 +2,37 @@
 % Please edit documentation in R/get_alldata.R
 \name{get_all_api_data}
 \alias{get_all_api_data}
-\title{Get all built-in API data}
+\title{Get data from all (or a subset of) registered API endpoints}
 \usage{
 get_all_api_data(
   key = Sys.getenv("lakeAPIkey"),
-  list.names = names(.api_url_registry)
+  datasets = .api_registry$dataset[!is.na(.api_registry$dataset)],
+  type = "small",
+  structure = "csv"
 )
 }
 \arguments{
-\item{key}{API key. Default reads from the lakeAPIkey environment variable.}
+\item{key}{Character. API key. Defaults to the \code{lakeAPIkey} environment
+variable.}
 
-\item{list.names}{list of names of dataframe to get from API. run \code{list_api_endpoints()} to list all possible API}
+\item{datasets}{Character vector of dataset names to fetch. Defaults to all
+non-\code{NA} dataset names in the registry. Use \code{\link[=list_api_endpoints]{list_api_endpoints()}} to
+browse available names.}
+
+\item{type}{Character. Fetch mode applied to every endpoint: \code{"small"}
+(default) uses \code{\link[=data_api]{data_api()}}; \code{"large"} uses \code{\link[=data_api2]{data_api2()}}.}
+
+\item{structure}{Character. Response format passed to \code{\link[=data_api]{data_api()}}: \code{"csv"}
+(default) or \code{"json"}. Ignored when \code{type = "large"}.}
 }
 \value{
-A named list of data frames.
+A named list where each element is either a data frame (successful
+request) or a character string describing the error (failed request).
+Names correspond to the \code{dataset} column of the registry.
 }
 \description{
-This function retrieves data from all registered default API endpoints.
-You can extend this by adding more with \code{add_api_url()}.
+Iterates over the API registry and retrieves data from each endpoint.
+Prints dataset metadata (title, category, API link) for every entry before
+fetching. Extend the registry with \code{\link[=add_api_url]{add_api_url()}} or refresh it with
+\code{\link[=update_registry]{update_registry()}}.
 }

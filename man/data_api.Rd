@@ -2,28 +2,29 @@
 % Please edit documentation in R/data_api.R
 \name{data_api}
 \alias{data_api}
-\title{Helper function to call API and return data frame}
+\title{Helper function to call API and return a data frame}
 \usage{
 data_api(url, key, filters = NULL, structure = "json", mute_onSuccess = TRUE)
 }
 \arguments{
-\item{url}{API endpoint}
+\item{url}{Character. API endpoint URL. When \code{filters} are provided and the
+URL contains \code{"/dynamic/"}, the segment is automatically replaced with
+\code{"/search3condition/"} to enable server-side filtering. If the URL already
+uses \code{"search3condition"}, it is left unchanged.}
 
-\item{key}{API key}
+\item{key}{Character. API key.}
 
 \item{filters}{Optional list of up to \strong{3} filter conditions used to
 subset the API results server-side. Each condition is a named list with
 three fields:
 \describe{
 \item{\code{column}}{Character. The name of the column/variable to filter on.}
-\item{\code{operator}}{Character. The comparison operator to apply. Common
-values include \code{"="} (equals), \code{"!="} (not equals), \code{">"}, \code{">="},
-\code{"<"}, and \code{"<="}.}
-\item{\code{value}}{The value to compare against. Can be a character string
-or numeric depending on the column type.}
+\item{\code{operator}}{Character. The comparison operator (\code{"="}, \code{"!="},
+\code{">"}, \code{">="}, \code{"<"}, \code{"<="}).}
+\item{\code{value}}{The value to compare against.}
 }
-Filters are combined with a logical AND. A maximum of 3 filters is
-supported. Pass \code{NULL} (default) to return all records without filtering.
+Filters are combined with a logical AND. Maximum 3 filters supported.
+Pass \code{NULL} (default) to return all records without filtering.
 
 Example:
 
@@ -33,17 +34,18 @@ Example:
 )
 }\if{html}{\out{</div>}}}
 
-\item{structure}{Character string specifying the response format. Use
-\code{"json"} (default) to return a data frame parsed from JSON, or \code{"csv"}
-to return a data frame read from delimited text.}
+\item{structure}{Character. Response format. Use \code{"json"} (default) to parse
+from JSON, or \code{"csv"} to read delimited text. \strong{Note:} if \code{filters} are
+provided and \code{structure = "csv"}, \code{structure} is automatically forced to
+\code{"json"} because filtering requires the JSON endpoint.}
 
-\item{mute_onSuccess}{Logical to suppress messages on a successful request.
-Defaults to \code{TRUE}.}
+\item{mute_onSuccess}{Logical. Suppress console messages on success.
+Default \code{TRUE}.}
 }
 \value{
-A data frame of the parsed API result, or \code{NULL} if the request
-fails.
+A data frame of the parsed API result, or \code{NULL} on failure.
 }
 \description{
-Helper function to call API and return data frame
+Low-level function that calls a single API endpoint and returns the parsed
+result. Supports optional server-side filtering and two response formats.
 }

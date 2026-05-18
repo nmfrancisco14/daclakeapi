@@ -1,7 +1,7 @@
 Package: daclakeapi
 Type: Package
 Title: daclakeapi: Access and Analyze Rice Data from APIs
-Version: 0.1.0
+Version: 0.5.0
 Authors@R: 
     person(given = "Nefriend", 
            family = "Francisco", 

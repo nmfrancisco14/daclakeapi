@@ -2,18 +2,31 @@
 % Please edit documentation in R/add_api_url.R
 \name{add_api_url}
 \alias{add_api_url}
-\title{Add or override an API endpoint}
+\title{Add or override an API entry in the registry}
 \usage{
-add_api_url(name, url)
+add_api_url(
+  dataset,
+  api_link,
+  type = "Custom",
+  category = NA_character_,
+  site_link = NA_character_
+)
 }
 \arguments{
-\item{name}{A unique name for the API (e.g. "my_custom_data")}
+\item{dataset}{Character. Title of the dataset.}
 
-\item{url}{The API endpoint URL}
+\item{api_link}{Character. The API endpoint URL.}
+
+\item{type}{Character. Sheet source label (default \code{"Custom"}).}
+
+\item{category}{Character. Category or sub-theme label (default \code{NA}).}
+
+\item{site_link}{Character. Data Lake Portal URL (default \code{NA}).}
 }
 \value{
-NULL (modifies internal registry)
+\code{NULL} invisibly. Modifies the internal registry.
 }
 \description{
-Add or override an API endpoint
+Adds a new row to the mutable API registry, or replaces an existing entry
+with the same \code{dataset} name if one exists.
 }

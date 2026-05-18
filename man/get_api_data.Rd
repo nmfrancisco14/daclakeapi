@@ -2,18 +2,40 @@
 % Please edit documentation in R/get_data_functions.R
 \name{get_api_data}
 \alias{get_api_data}
-\title{Get API data by name}
+\title{Get API data by dataset name}
 \usage{
-get_api_data(name, key = Sys.getenv("lakeAPIkey"), type = "small")
+get_api_data(
+  name,
+  key = Sys.getenv("lakeAPIkey"),
+  type = "small",
+  filters = NULL,
+  structure = "json"
+)
 }
 \arguments{
-\item{name}{One of the known API names like "wholesale_prices"}
+\item{name}{Character. The exact dataset name as listed in the registry.
+Use \code{get_api_registry()} or \code{list_api_endpoints()} to browse available
+names.}
 
-\item{key}{API key. Default reads from the lakeAPIkey environment variable.}
+\item{key}{Character. API key. Defaults to the \code{lakeAPIkey} environment
+variable.}
+
+\item{type}{Character. Fetch mode: \code{"small"} (default) uses \code{\link[=data_api]{data_api()}}
+with JSON/CSV support and optional filtering; \code{"large"} uses \code{\link[=data_api2]{data_api2()}}
+which is optimised for large datasets returned as CSV.}
+
+\item{filters}{Optional list of filter conditions passed to \code{\link[=data_api]{data_api()}}.
+Ignored when \code{type = "large"}. See \code{\link[=data_api]{data_api()}} for format details.}
+
+\item{structure}{Character. Response format passed to \code{\link[=data_api]{data_api()}}: \code{"json"}
+(default) or \code{"csv"}. Ignored when \code{type = "large"}. Automatically forced
+to \code{"json"} if filters are provided.}
 }
 \value{
-Data frame from API
+A data frame returned by the API, or \code{NULL} on failure.
 }
 \description{
-Get API data by name
+Fetches data from a single registered API endpoint, identified by its
+dataset name. Prints dataset metadata (title, category, API link) to the
+console before fetching.
 }

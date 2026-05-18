@@ -1,20 +1,24 @@
-#' Helper function to call API and return data frame
+#' Helper function to call API and return a data frame
 #'
-#' @param url API endpoint
-#' @param key API key
+#' Low-level function that calls a single API endpoint and returns the parsed
+#' result. Supports optional server-side filtering and two response formats.
+#'
+#' @param url Character. API endpoint URL. When `filters` are provided and the
+#'   URL contains `"/dynamic/"`, the segment is automatically replaced with
+#'   `"/search3condition/"` to enable server-side filtering. If the URL already
+#'   uses `"search3condition"`, it is left unchanged.
+#' @param key Character. API key.
 #' @param filters Optional list of up to **3** filter conditions used to
 #'   subset the API results server-side. Each condition is a named list with
 #'   three fields:
 #'   \describe{
 #'     \item{`column`}{Character. The name of the column/variable to filter on.}
-#'     \item{`operator`}{Character. The comparison operator to apply. Common
-#'       values include `"="` (equals), `"!="` (not equals), `">"`, `">="`,
-#'       `"<"`, and `"<="`.}
-#'     \item{`value`}{The value to compare against. Can be a character string
-#'       or numeric depending on the column type.}
+#'     \item{`operator`}{Character. The comparison operator (`"="`, `"!="`,
+#'       `">"`, `">="`, `"<"`, `"<="`).}
+#'     \item{`value`}{The value to compare against.}
 #'   }
-#'   Filters are combined with a logical AND. A maximum of 3 filters is
-#'   supported. Pass `NULL` (default) to return all records without filtering.
+#'   Filters are combined with a logical AND. Maximum 3 filters supported.
+#'   Pass `NULL` (default) to return all records without filtering.
 #'
 #'   Example:
 #'   ```r
@@ -23,84 +27,69 @@
 #'     list(column = "year",        operator = "=", value = 2025)
 #'   )
 #'   ```
-#' @param structure Character string specifying the response format. Use
-#'   `"json"` (default) to return a data frame parsed from JSON, or `"csv"`
-#'   to return a data frame read from delimited text.
-#' @param mute_onSuccess Logical to suppress messages on a successful request.
-#'   Defaults to `TRUE`.
+#' @param structure Character. Response format. Use `"json"` (default) to parse
+#'   from JSON, or `"csv"` to read delimited text. **Note:** if `filters` are
+#'   provided and `structure = "csv"`, `structure` is automatically forced to
+#'   `"json"` because filtering requires the JSON endpoint.
+#' @param mute_onSuccess Logical. Suppress console messages on success.
+#'   Default `TRUE`.
 #'
-#' @return A data frame of the parsed API result, or `NULL` if the request
-#'   fails.
+#' @return A data frame of the parsed API result, or `NULL` on failure.
+data_api <- function(url, key, filters = NULL, structure = "json",
+                     mute_onSuccess = TRUE) {
 
-data_api <- function(url, key, filters = NULL, structure = 'json', mute_onSuccess = TRUE) {
-
-  if (structure == 'json') {
-  # Build the query parameters
-  query_params <- list(key = key, structure = structure)
-
-  # Add filters to query if provided
-  if (!is.null(filters)) {
-    # Ensure filters is a list (not a JSON string)
-    if (is.character(filters)) {
-      filters_list <- jsonlite::fromJSON(filters)
-    } else if (is.list(filters)) {
-      filters_list <- filters
-    }
-    # Add each filter as a separate 'filters[]' parameter
-    for (i in seq_along(filters_list)) {
-      # Remove jsonlite::toJSON() here - just pass the list directly
-      query_params[[paste0("filters[", i - 1, "][column]")]] <- filters_list[[
-        i
-      ]]$column
-      query_params[[paste0("filters[", i - 1, "][operator]")]] <- filters_list[[
-        i
-      ]]$operator
-      query_params[[paste0("filters[", i - 1, "][value]")]] <- filters_list[[
-        i
-      ]]$value
-    }
-  }
-
-  # Send GET request with key and filters as query parameters
-  response <- httr::GET(
-    url,
-    query = query_params
-  )
-
-  if (httr::status_code(response) == 200) {
-    if (!mute_onSuccess) {
-      print("Request was successful!")
-    }
-
-    data <- httr::content(response, "text", encoding = "UTF-8")
-
-    # print(data)
-
-    json_data <- jsonlite::fromJSON(data, flatten = TRUE)
-    data_df <- as.data.frame(json_data)
-
-    if (!mute_onSuccess) {
-      print(head(data_df))
-    }
-  } else {
-    print(paste("Request failed with status:", httr::status_code(response)))
-    print(httr::content(response, "text", encoding = "UTF-8"))
-    data_df <- NULL # Prevent returning undefined object
-  }
-
-  return(data_df)
-} else {
-      response <- httr::GET(
-    url,
-    query = list(
-      key = key,
-      structure = structure
+  # Task 7: force json when filters are provided with csv
+  if (!is.null(filters) && structure == "csv") {
+    message(
+      "[daclakeapi] Filters detected with structure = 'csv'. ",
+      "Forcing structure = 'json' to enable server-side filtering."
     )
-  )
-  
-  data <- httr::content(response, "text", encoding = "UTF-8")
-  
-  readr::read_delim(data, delim = ",", escape_double = FALSE, trim_ws = TRUE)
+    structure <- "json"
+  }
+
+  # Task 4: swap /dynamic/ -> /search3condition/ when filters are present
+  if (!is.null(filters) && grepl("/dynamic/", url, fixed = TRUE)) {
+    url <- sub("/dynamic/", "/search3condition/", url, fixed = TRUE)
+    message("[daclakeapi] URL updated for filtering: ", url)
+  }
+
+  if (structure == "json") {
+    query_params <- list(key = key, structure = structure)
+
+    if (!is.null(filters)) {
+      if (is.character(filters)) {
+        filters_list <- jsonlite::fromJSON(filters)
+      } else {
+        filters_list <- filters
+      }
+      for (i in seq_along(filters_list)) {
+        query_params[[paste0("filters[", i - 1, "][column]")]]   <- filters_list[[i]]$column
+        query_params[[paste0("filters[", i - 1, "][operator]")]] <- filters_list[[i]]$operator
+        query_params[[paste0("filters[", i - 1, "][value]")]]    <- filters_list[[i]]$value
+      }
+    }
+
+    response <- httr::GET(url, query = query_params)
+
+    if (httr::status_code(response) == 200) {
+      if (!mute_onSuccess) message("Request was successful!")
+      data     <- httr::content(response, "text", encoding = "UTF-8")
+      json_data <- jsonlite::fromJSON(data, flatten = TRUE)
+      data_df  <- as.data.frame(json_data)
+      if (!mute_onSuccess) print(head(data_df))
+    } else {
+      message("Request failed with status: ", httr::status_code(response))
+      message(httr::content(response, "text", encoding = "UTF-8"))
+      data_df <- NULL
+    }
+
+    return(data_df)
+
+  } else {
+    # structure == "csv"
+    response <- httr::GET(url, query = list(key = key, structure = structure))
+    data     <- httr::content(response, "text", encoding = "UTF-8")
+    readr::read_delim(data, delim = ",", escape_double = FALSE, trim_ws = TRUE)
   }
 }
 

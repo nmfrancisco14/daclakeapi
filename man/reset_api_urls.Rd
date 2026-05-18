@@ -2,10 +2,14 @@
 % Please edit documentation in R/add_api_url.R
 \name{reset_api_urls}
 \alias{reset_api_urls}
-\title{Reset API registry to defaults}
+\title{Reset API registry to the built-in defaults}
 \usage{
 reset_api_urls()
 }
+\value{
+\code{NULL} invisibly.
+}
 \description{
-Reset API registry to defaults
+Discards any custom entries added with \code{add_api_url()} and restores the
+original registry bundled with the package.
 }
