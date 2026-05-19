@@ -4,7 +4,7 @@
 \alias{list_api_endpoints}
 \title{List all dataset names in the registry}
 \usage{
-list_api_endpoints()
+list_api_endpoints(type = "dataset")
 }
 \value{
 A character vector of dataset names (may include \code{NA} entries).

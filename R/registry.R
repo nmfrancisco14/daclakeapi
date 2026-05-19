@@ -54,5 +54,26 @@
   )
 )
 
+# Build label (human-readable display name) and dataset (camelCase API key).
+# Known within-group duplicates (same label, different category) are tagged
+# before key generation so they receive distinct keys.
+.default_api_registry <- .default_api_registry |>
+  dplyr::mutate(
+    label    = .get_dataset_label(dataset),
+    .key_src = dplyr::case_when(
+      label == "Pay Prism" & category == "KPI" ~ "Pay Prism KPI",
+      label == "Seed Class" & category == "RB"  ~ "Seed Class RB",
+      TRUE ~ label
+    ),
+    dataset  = .get_dataset_key(.key_src),
+    short_endpoint = dplyr::if_else(
+      stringr::str_detect(api_link, "dynamic/"), 
+      stringr::str_extract(api_link, "(?<=dynamic/).*"),
+      stringr::str_extract(api_link, "(?<=api/).*")
+    )
+  ) |>
+  dplyr::select(-.key_src) |>
+  dplyr::relocate(dataset, label, type, category, api_link, site_link)
+
 # Mutable copy
 .api_registry <- .default_api_registry

@@ -2,8 +2,9 @@
 #'
 #' Returns the current API registry as a tibble with columns:
 #' \describe{
-#'   \item{`dataset`}{Title of the dataset.}
-#'   \item{`type`}{Sheet source: `"Convergence"` or `"Analytics and Rltx"`.}
+#'   \item{`dataset`}{lowerCamelCase API key used in [get_api_data()].}
+#'   \item{`label`}{Human-readable display name for the dataset.}
+#'   \item{`type`}{Sheet source: `"Convergence"`, `"Analytics and Rltx"`, or `"Old API list"`.}
 #'   \item{`category`}{Sub-theme (Convergence) or category (Analytics and Rltx).}
 #'   \item{`api_link`}{API endpoint URL.}
 #'   \item{`site_link`}{Data Lake Portal URL.}
@@ -26,12 +27,10 @@ get_api_registry <- function() {
 get_api_url <- function(name) {
   if (is.numeric(name)) {
     row <- .api_registry[name, ]
+    if (nrow(row) == 0) stop("Row index out of range: ", name)
   } else {
-    row <- .api_registry[!is.na(.api_registry$dataset) &
-                           .api_registry$dataset == name, ]
-  }
-  if (nrow(row) == 0) {
-    stop(paste("No API entry found for:", name))
+    # accepts dataset key OR short_endpoint
+    row <- .resolve_registry_row(name)
   }
   row$api_link[[1]]
 }
@@ -42,26 +41,37 @@ get_api_url <- function(name) {
 #' Adds a new row to the mutable API registry, or replaces an existing entry
 #' with the same `dataset` name if one exists.
 #'
-#' @param dataset Character. Title of the dataset.
+#' @param dataset Character. lowerCamelCase key used to call [get_api_data()].
+#'   If omitted, auto-generated from `label` via camelCase conversion.
 #' @param api_link Character. The API endpoint URL.
+#' @param label Character. Human-readable display name. Defaults to `dataset`.
 #' @param type Character. Sheet source label (default `"Custom"`).
 #' @param category Character. Category or sub-theme label (default `NA`).
 #' @param site_link Character. Data Lake Portal URL (default `NA`).
 #'
 #' @return `NULL` invisibly. Modifies the internal registry.
 #' @export
-add_api_url <- function(dataset, api_link, type = "Custom",
+add_api_url <- function(dataset, api_link, label = dataset, type = "Custom",
                         category = NA_character_, site_link = NA_character_) {
   if (!is.character(dataset) || !is.character(api_link)) {
     stop("`dataset` and `api_link` must be character strings.")
   }
 
+  short_endpoint = if(stringr::str_detect(api_link, "/dynamic/")) {
+    stringr::str_extract(api_link, "(?<=dynamic/).*")
+  } else {
+    stringr::str_extract(api_link, "(?<=api/).*")
+  }
+    
+
   new_row <- tibble::tibble(
     dataset   = dataset,
+    label     = label,
     type      = type,
     category  = category,
     api_link  = api_link,
-    site_link = site_link
+    site_link = site_link,
+    short_endpoint = short_endpoint
   )
 
   # Replace existing row with same dataset name, or append
@@ -82,8 +92,15 @@ add_api_url <- function(dataset, api_link, type = "Custom",
 #'
 #' @return A character vector of dataset names (may include `NA` entries).
 #' @export
-list_api_endpoints <- function() {
+list_api_endpoints <- function(type = "dataset") {
+
+  if (type =="dataset") {
   .api_registry$dataset
+  } else if (type == "short_endpoint") {
+    .api_registry$short_endpoint
+  } else {
+    stop("Invalid type: ", type, ". Use 'dataset' or 'short_endpoint'.")
+  }
 }
 
 
@@ -115,12 +132,8 @@ reset_api_urls <- function() {
 #' @return `NULL` invisibly.
 #' @export
 view_site <- function(name, browser = FALSE) {
-  row <- .api_registry[!is.na(.api_registry$dataset) &
-                         .api_registry$dataset == name, ]
-
-  if (nrow(row) == 0) {
-    stop("No registry entry found for: ", name)
-  }
+  # accepts dataset key OR short_endpoint
+  row <- .resolve_registry_row(name)
 
   url <- row$site_link[[1]]
 
@@ -146,45 +159,86 @@ view_site <- function(name, browser = FALSE) {
 #' \pkg{googlesheets4} package and network access.
 #'
 #' @param quiet Logical. If `TRUE`, suppress status messages. Default `FALSE`.
+#' @param gsheet_url Character. The Google Sheet URL to fetch the registry from.
+#'   Defaults to the built-in URL (`.GSHEET_URL`).
 #'
 #' @return `NULL` invisibly. The internal registry is updated in-place.
 #' @export
-update_registry <- function(quiet = FALSE) {
-  if (!requireNamespace("googlesheets4", quietly = TRUE)) {
-    stop("Package 'googlesheets4' is required. Install it with: install.packages('googlesheets4')")
-  }
-
-  if (!quiet) message("Fetching registry from Google Sheet: ", .GSHEET_URL)
+update_registry <- function(gsheet_url = .GSHEET_URL) {
+  if (!requireNamespace("googlesheets4", quietly = TRUE))
+    stop("Install googlesheets4: install.packages('googlesheets4')")
 
   googlesheets4::gs4_deauth()
+  id <- googlesheets4::as_sheets_id(gsheet_url)
 
-  conv <- googlesheets4::read_sheet(.GSHEET_ID, sheet = "Convergence")
-  anal <- googlesheets4::read_sheet(.GSHEET_ID, sheet = "Analytics and Rltx")
-
-  conv_df <- conv |>
-    dplyr::filter(!is.na(`API Link`)) |>
-    dplyr::transmute(
-      dataset   = `Title of Dataset`,
-      type      = "Convergence",
-      category  = `Sub-theme`,
-      api_link  = `API Link`,
-      site_link = `Data Lake Portal Link`
-    )
-
-  anal_df <- anal |>
-    dplyr::filter(!is.na(`API Link`)) |>
-    dplyr::transmute(
-      dataset   = `Title of Dataset`,
-      type      = "Analytics and Rltx",
-      category  = Categories,
-      api_link  = `API Link`,
-      site_link = `Data Lake Portal Link`
-    )
-
-  .api_registry <<- dplyr::bind_rows(conv_df, anal_df)
-
-  if (!quiet) {
-    message("Registry updated: ", nrow(.api_registry), " entries loaded.")
+  read_sheet_safe <- function(sheet, type_val) {
+    tryCatch({
+      df <- googlesheets4::read_sheet(id, sheet = sheet, col_types = "c")
+      df <- df[!is.na(df[["API Link"]]) & nchar(trimws(df[["API Link"]])) > 0, ]
+      tibble::tibble(
+        label    = trimws(df[["Title of Dataset"]]),
+        type     = type_val,
+        category = trimws(df[[if (type_val == "Convergence") "subtheme" else "category"]]),
+        api_link = trimws(df[["API Link"]]),
+        site_link = trimws(df[["Data Lake Portal Link"]])
+      )
+    }, error = function(e) {
+      warning("Could not read sheet '", sheet, "': ", conditionMessage(e))
+      NULL
+    })
   }
-  invisible(NULL)
+
+  fresh <- dplyr::bind_rows(
+    read_sheet_safe("Convergence",       "Convergence"),
+    read_sheet_safe("Analytics and Rltx","Analytics and Rltx")
+  )
+
+  if (is.null(fresh) || nrow(fresh) == 0) {
+    message("Registry update aborted: no data retrieved.")
+    return(invisible(.api_registry))
+  }
+
+  # --- Key stability: reuse existing keys matched by api_link ---
+  existing_keys <- .api_registry |>
+    dplyr::select(api_link, dataset) |>
+    dplyr::distinct()
+
+  fresh <- fresh |>
+    dplyr::left_join(existing_keys, by = "api_link") |>
+    dplyr::mutate(
+      dataset = dplyr::case_when(
+        # 1. preserved from existing registry (matched by api_link)
+        !is.na(dataset) ~ dataset,
+        # 2. override map (label-based fallback for known renames)
+        label %in% names(.DATASET_KEY_OVERRIDES) ~ unname(.DATASET_KEY_OVERRIDES[label]),
+        # 3. derive programmatically for brand-new entries
+        TRUE ~ .to_camel_case(label)
+      )
+    )
+
+  # Append the Old API list from the default registry (always stable)
+  old_entries <- .default_api_registry |>
+    dplyr::filter(type == "Old API list") 
+
+  updated <- dplyr::bind_rows(fresh, old_entries) |> 
+    mutate(
+      short_endpoint = if_else(stringr::str_detect(api_link, "/dynamic/"),
+      stringr::str_extract(api_link, "(?<=dynamic/).*"),
+      stringr::str_extract(api_link, "(?<=api/).*"))
+    )
+
+  # Deduplicate keys — tag duplicates with a numeric suffix
+  updated <- updated |>
+    dplyr::group_by(dataset) |>
+    dplyr::mutate(
+      dataset = if (dplyr::n() > 1)
+        paste0(dataset, dplyr::row_number())
+      else
+        dataset
+    ) |>
+    dplyr::ungroup()
+
+  .api_registry <<- updated
+  message("Registry updated: ", nrow(.api_registry), " endpoints loaded.")
+  invisible(.api_registry)
 }

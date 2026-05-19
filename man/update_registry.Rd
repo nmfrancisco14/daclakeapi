@@ -4,9 +4,12 @@
 \alias{update_registry}
 \title{Update the API registry by re-fetching the source Google Sheet}
 \usage{
-update_registry(quiet = FALSE)
+update_registry(gsheet_url = .GSHEET_URL)
 }
 \arguments{
+\item{gsheet_url}{Character. The Google Sheet URL to fetch the registry from.
+Defaults to the built-in URL (\code{.GSHEET_URL}).}
+
 \item{quiet}{Logical. If \code{TRUE}, suppress status messages. Default \code{FALSE}.}
 }
 \value{

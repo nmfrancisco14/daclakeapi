@@ -4,7 +4,7 @@
 #' dataset name. Prints dataset metadata (title, category, API link) to the
 #' console before fetching.
 #'
-#' @param name Character. The exact dataset name as listed in the registry.
+#' @param name Character. The dataset name OR shortened endpoint as listed in the registry.
 #'   Use `get_api_registry()` or `list_api_endpoints()` to browse available
 #'   names.
 #' @param key Character. API key. Defaults to the `lakeAPIkey` environment
@@ -24,20 +24,18 @@ get_api_data <- function(name, key = Sys.getenv("lakeAPIkey"),
                          type = "small", filters = NULL,
                          structure = "json") {
 
-  # Look up the registry row for metadata
-  row <- .api_registry[!is.na(.api_registry$dataset) &
-                         .api_registry$dataset == name, ]
-  if (nrow(row) == 0) {
-    stop("No API entry found for: ", name)
-  }
+  # Look up the registry row — accepts dataset key or short_endpoint
+  row <- .resolve_registry_row(name)
 
   url <- row$api_link[[1]]
 
   # Print dataset info (Task 6)
   message(
-    "[daclakeapi] Fetching dataset  : ", row$dataset[[1]], "\n",
-    "             Category         : ", ifelse(is.na(row$category[[1]]), "N/A", row$category[[1]]), "\n",
-    "             API Link         : ", url
+    "[daclakeapi] Fetching dataset  : ", row$label[[1]], "\n",
+    "             Key               : ", row$dataset[[1]], "\n",
+    "             Category          : ", ifelse(is.na(row$category[[1]]), "N/A", row$category[[1]]), "\n",
+    "             Short Endpoint    : ", row$short_endpoint[[1]], "\n",
+    "             API Link          : ", url
   )
 
   if (type == "large") {

@@ -36,7 +36,8 @@ get_all_api_data <- function(key       = Sys.getenv("lakeAPIkey"),
     url <- row$api_link[[1]]
 
     message(
-      "[daclakeapi] Fetching dataset  : ", row$dataset[[1]], "\n",
+      "[daclakeapi] Fetching dataset  : ", row$label[[1]], "\n",
+      "             Key              : ", row$dataset[[1]], "\n",
       "             Category         : ", ifelse(is.na(row$category[[1]]), "N/A", row$category[[1]]), "\n",
       "             API Link         : ", url
     )

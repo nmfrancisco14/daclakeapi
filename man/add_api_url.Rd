@@ -7,15 +7,19 @@
 add_api_url(
   dataset,
   api_link,
+  label = dataset,
   type = "Custom",
   category = NA_character_,
   site_link = NA_character_
 )
 }
 \arguments{
-\item{dataset}{Character. Title of the dataset.}
+\item{dataset}{Character. lowerCamelCase key used to call \code{\link[=get_api_data]{get_api_data()}}.
+If omitted, auto-generated from \code{label} via camelCase conversion.}
 
 \item{api_link}{Character. The API endpoint URL.}
+
+\item{label}{Character. Human-readable display name. Defaults to \code{dataset}.}
 
 \item{type}{Character. Sheet source label (default \code{"Custom"}).}
 

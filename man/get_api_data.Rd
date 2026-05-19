@@ -13,7 +13,7 @@ get_api_data(
 )
 }
 \arguments{
-\item{name}{Character. The exact dataset name as listed in the registry.
+\item{name}{Character. The dataset name OR shortened endpoint as listed in the registry.
 Use \code{get_api_registry()} or \code{list_api_endpoints()} to browse available
 names.}
 

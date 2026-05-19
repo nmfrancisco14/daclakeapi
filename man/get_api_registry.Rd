@@ -12,8 +12,9 @@ A tibble of all registered API endpoints.
 \description{
 Returns the current API registry as a tibble with columns:
 \describe{
-\item{\code{dataset}}{Title of the dataset.}
-\item{\code{type}}{Sheet source: \code{"Convergence"} or \code{"Analytics and Rltx"}.}
+\item{\code{dataset}}{lowerCamelCase API key used in \code{\link[=get_api_data]{get_api_data()}}.}
+\item{\code{label}}{Human-readable display name for the dataset.}
+\item{\code{type}}{Sheet source: \code{"Convergence"}, \code{"Analytics and Rltx"}, or \code{"Old API list"}.}
 \item{\code{category}}{Sub-theme (Convergence) or category (Analytics and Rltx).}
 \item{\code{api_link}}{API endpoint URL.}
 \item{\code{site_link}}{Data Lake Portal URL.}
