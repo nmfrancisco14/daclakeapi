@@ -101,7 +101,6 @@ When a request fails, the API returns an HTTP status code. The table below summa
 | `401 Unauthorized` | Missing or invalid API key | `lakeAPIkey` env var not set, or the key has expired | Run `usethis::edit_r_environ()`, confirm `lakeAPIkey=...` is present, and restart R |
 | `403 Forbidden` | Key valid but access denied | Your key does not have permission for this endpoint | Contact **Master Dexter** |
 | `404 Not Found` | Endpoint URL not found | The `api_link` in the registry is outdated or the dataset was moved | URL is invalid or was changed, feedback to Me. |
-| `404 Not Found` | Endpoint URL not found | The `api_link` in the registry is outdated or the dataset was moved | URL is invalid or was changed, feedback to Me. |
 | `429 Too many Requests` | Too many data requests | Server Issue | Chillax, akala nila bot ka. Wait a few minutes then try again. |
 | `503 Service Unavailable` | Server overloaded or down | High traffic or scheduled maintenance | Mag health hour na muna, then try again later |
 
