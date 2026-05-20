@@ -79,6 +79,7 @@ failed <- Filter(is.character, all_results)
 - `reset_api_urls()`: reset registry to package defaults
 - `update_registry()`: refresh registry from the source Google Sheet
 - `view_site(name)`: open a dataset portal page from `site_link`
+- `search_registry()`: search the registry by keyword
 - `summarize_latest_dates(data)`: summarize latest available dates
 
 ## Notes
