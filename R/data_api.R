@@ -14,17 +14,28 @@
 #'   \describe{
 #'     \item{`column`}{Character. The name of the column/variable to filter on.}
 #'     \item{`operator`}{Character. The comparison operator (`"="`, `"!="`,
-#'       `">"`, `">="`, `"<"`, `"<="`).}
-#'     \item{`value`}{The value to compare against.}
+#'       `">"`, `">="`, `"<"`, `"<="`, `"in"`). Use `"in"` to match any of
+#'       multiple values (see `value` below).}
+#'     \item{`value`}{The value to compare against. For `operator = "in"`,
+#'       supply a character or numeric vector, e.g.
+#'       `value = c("a", "b", "c")`. For all other operators a scalar is
+#'       expected.}
 #'   }
 #'   Filters are combined with a logical AND. Maximum 3 filters supported.
 #'   Pass `NULL` (default) to return all records without filtering.
 #'
-#'   Example:
+#'   Examples:
 #'   ```r
+#'   # Scalar filter
 #'   filters = list(
-#'     list(column = "percap_type", operator = "=", value = "FIES"),
-#'     list(column = "year",        operator = "=", value = 2025)
+#'     list(column = "percap_type", operator = "=",  value = "FIES"),
+#'     list(column = "year",        operator = "=",  value = 2025)
+#'   )
+#'
+#'   # "in" filter – multiple values
+#'   filters = list(
+#'     list(column = "percap_type", operator = "in", value = c("FIES", "MFIES")),
+#'     list(column = "year",        operator = "=",  value = 2025)
 #'   )
 #'   ```
 #' @param structure Character. Response format. Use `"json"` (default) to parse
@@ -65,7 +76,15 @@ data_api <- function(url, key, filters = NULL, structure = "json",
       for (i in seq_along(filters_list)) {
         query_params[[paste0("filters[", i - 1, "][column]")]]   <- filters_list[[i]]$column
         query_params[[paste0("filters[", i - 1, "][operator]")]] <- filters_list[[i]]$operator
-        query_params[[paste0("filters[", i - 1, "][value]")]]    <- filters_list[[i]]$value
+        val <- filters_list[[i]]$value
+        if (length(val) > 1) {
+          # Expand multiple values into indexed params: filters[i][value][0], [1], ...
+          for (j in seq_along(val)) {
+            query_params[[paste0("filters[", i - 1, "][value][", j - 1, "]")]] <- val[[j]]
+          }
+        } else {
+          query_params[[paste0("filters[", i - 1, "][value]")]] <- val
+        }
       }
     }
 

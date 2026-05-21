@@ -53,7 +53,8 @@ filtered_costret <- get_api_data(
   "cnr",
   filters = list(
     list(column = "year", operator = "=", value = "2025"),
-    list(column = "psgc_code", operator = "=", value = "PHL")
+    list(column = "psgc_code", operator = "=", value = "PHL"),
+    list(column ="season", operator = "in", value = c("Dry","Wet")) #selecting multiple values
   )
 )
 

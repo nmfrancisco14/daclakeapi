@@ -20,17 +20,28 @@ three fields:
 \describe{
 \item{\code{column}}{Character. The name of the column/variable to filter on.}
 \item{\code{operator}}{Character. The comparison operator (\code{"="}, \code{"!="},
-\code{">"}, \code{">="}, \code{"<"}, \code{"<="}).}
-\item{\code{value}}{The value to compare against.}
+\code{">"}, \code{">="}, \code{"<"}, \code{"<="}, \code{"in"}). Use \code{"in"} to match any of
+multiple values (see \code{value} below).}
+\item{\code{value}}{The value to compare against. For \code{operator = "in"},
+supply a character or numeric vector, e.g.
+\code{value = c("a", "b", "c")}. For all other operators a scalar is
+expected.}
 }
 Filters are combined with a logical AND. Maximum 3 filters supported.
 Pass \code{NULL} (default) to return all records without filtering.
 
-Example:
+Examples:
 
-\if{html}{\out{<div class="sourceCode r">}}\preformatted{filters = list(
-  list(column = "percap_type", operator = "=", value = "FIES"),
-  list(column = "year",        operator = "=", value = 2025)
+\if{html}{\out{<div class="sourceCode r">}}\preformatted{# Scalar filter
+filters = list(
+  list(column = "percap_type", operator = "=",  value = "FIES"),
+  list(column = "year",        operator = "=",  value = 2025)
+)
+
+# "in" filter – multiple values
+filters = list(
+  list(column = "percap_type", operator = "in", value = c("FIES", "MFIES")),
+  list(column = "year",        operator = "=",  value = 2025)
 )
 }\if{html}{\out{</div>}}}
 
