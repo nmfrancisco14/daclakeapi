@@ -78,10 +78,12 @@ add_api_url <- function(dataset, api_link, label = dataset, type = "Custom",
   existing <- which(!is.na(.api_registry$dataset) &
                       .api_registry$dataset == dataset)
   if (length(existing) > 0) {
-    .api_registry[existing[1], ] <<- new_row
+    updated <- .api_registry
+    updated[existing[1], ] <- new_row
+    .set_registry(updated)
     message("Updated existing entry: ", dataset)
   } else {
-    .api_registry <<- dplyr::bind_rows(.api_registry, new_row)
+    .set_registry(dplyr::bind_rows(.api_registry, new_row))
     message("Added new entry: ", dataset)
   }
   invisible(NULL)
@@ -112,7 +114,7 @@ list_api_endpoints <- function(type = "dataset") {
 #' @return `NULL` invisibly.
 #' @export
 reset_api_urls <- function() {
-  .api_registry <<- .default_api_registry
+  .set_registry(.default_api_registry)
   message("API registry reset to defaults (", nrow(.api_registry), " entries).")
   invisible(NULL)
 }
@@ -175,12 +177,26 @@ update_registry <- function(gsheet_url = .GSHEET_URL) {
     tryCatch({
       df <- googlesheets4::read_sheet(id, sheet = sheet, col_types = "c")
       df <- df[!is.na(df[["API Link"]]) & nchar(trimws(df[["API Link"]])) > 0, ]
+
+      # Case-insensitive column lookup with NULL-safe fallback
+      .col <- function(data, ...) {
+        candidates <- c(...)
+        col_names_lower <- tolower(names(data))
+        for (nm in tolower(candidates)) {
+          idx <- match(nm, col_names_lower)
+          if (!is.na(idx)) return(trimws(as.character(data[[idx]])))
+        }
+        rep(NA_character_, nrow(data))   # column not found → all NA
+      }
+
+      cat_col <- if (type_val == "Convergence") c("subtheme", "sub-theme", "sub theme") else c("category")
+
       tibble::tibble(
-        label    = trimws(df[["Title of Dataset"]]),
-        type     = type_val,
-        category = trimws(df[[if (type_val == "Convergence") "subtheme" else "category"]]),
-        api_link = trimws(df[["API Link"]]),
-        site_link = trimws(df[["Data Lake Portal Link"]])
+        label     = .col(df, "title of dataset"),
+        type      = type_val,
+        category  = .col(df, cat_col),
+        api_link  = .col(df, "api link"),
+        site_link = .col(df, "data lake portal link")
       )
     }, error = function(e) {
       warning("Could not read sheet '", sheet, "': ", conditionMessage(e))
@@ -221,8 +237,8 @@ update_registry <- function(gsheet_url = .GSHEET_URL) {
     dplyr::filter(type == "Old API list") 
 
   updated <- dplyr::bind_rows(fresh, old_entries) |> 
-    mutate(
-      short_endpoint = if_else(stringr::str_detect(api_link, "/dynamic/"),
+    dplyr::mutate(
+      short_endpoint =dplyr::if_else(stringr::str_detect(api_link, "/dynamic/"),
       stringr::str_extract(api_link, "(?<=dynamic/).*"),
       stringr::str_extract(api_link, "(?<=api/).*"))
     )
@@ -238,7 +254,7 @@ update_registry <- function(gsheet_url = .GSHEET_URL) {
     ) |>
     dplyr::ungroup()
 
-  .api_registry <<- updated
+  .set_registry(updated)
   message("Registry updated: ", nrow(.api_registry), " endpoints loaded.")
   invisible(.api_registry)
 }

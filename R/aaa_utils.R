@@ -1,4 +1,18 @@
 # ---------------------------------------------------------------------------
+# Registry setter — works in locked installed namespaces
+# ---------------------------------------------------------------------------
+
+#' Assign a new value to .api_registry in the package namespace
+#' @keywords internal
+.set_registry <- function(value) {
+  ns <- getNamespace("daclakeapi")
+  unlockBinding(".api_registry", ns)
+  assign(".api_registry", value, envir = ns)
+  lockBinding(".api_registry", ns)
+  invisible(value)
+}
+
+# ---------------------------------------------------------------------------
 # camelCase converter
 # ---------------------------------------------------------------------------
 
