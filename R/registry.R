@@ -652,7 +652,7 @@
     "https://ricelytics.philrice.gov.ph/data_lake/api/dynamic/analyticsapi_crop_estab",
     "https://ricelytics.philrice.gov.ph/data_lake/api/dynamic/analyticsapi_end_stock",
     "https://ricelytics.philrice.gov.ph/data_lake/api/dynamic/analyticsapi_exchange_rates",
-    "https://ricelytics.philrice.gov.ph/data_lake/api/dynamic/analyticsapi_farmgate_price",
+    "https://ricelytics.philrice.gov.ph/data_lake/api/dynamic/analyticsapi_farmgate_prices",
     "https://ricelytics.philrice.gov.ph/data_lake/api/dynamic/analyticsapi_fob_prices",
     "https://ricelytics.philrice.gov.ph/data_lake/api/dynamic/analyticsapi_fob_prices_vfa",
     "https://ricelytics.philrice.gov.ph/data_lake/api/dynamic/analyticsapi_fob_prices_wb",
