@@ -673,7 +673,7 @@
     "https://ricelytics.philrice.gov.ph/data_lake/api/dynamic/analyticsapi_pay_prism",
     "https://ricelytics.philrice.gov.ph/data_lake/api/dynamic/analyticsapi_pay_prism_areas",
     "https://ricelytics.philrice.gov.ph/data_lake/api/dynamic/analyticsapi_pay_prism_monthly",
-    "https://ricelytics.philrice.gov.ph/data_lake/analytics/pay_prism_monthly",
+    "https://ricelytics.philrice.gov.ph/data_lake/api/dynamic/analyticsapi_ph_population",
     "https://ricelytics.philrice.gov.ph/data_lake/api/dynamic/analyticsapi_prism_growth_stages_monthly",
     "https://ricelytics.philrice.gov.ph/data_lake/api/dynamic/analyticsapi_prism_growth_stages_weekly",
     "https://ricelytics.philrice.gov.ph/data_lake/api/dynamic/analyticsapi_prism_growth_stages_weekly2",
