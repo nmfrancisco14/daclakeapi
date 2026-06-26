@@ -189,7 +189,7 @@ update_registry <- function(gsheet_url = .GSHEET_URL) {
         rep(NA_character_, nrow(data))   # column not found → all NA
       }
 
-      cat_col <- if (type_val == "Convergence") c("subtheme", "sub-theme", "sub theme") else c("category")
+      cat_col <- if (type_val == "Convergence") c("subtheme", "sub-theme", "sub theme") else c("categories")
 
       tibble::tibble(
         label     = .col(df, "title of dataset"),
@@ -206,7 +206,7 @@ update_registry <- function(gsheet_url = .GSHEET_URL) {
 
   fresh <- dplyr::bind_rows(
     read_sheet_safe("Convergence",       "Convergence"),
-    read_sheet_safe("Analytics and Rltx","Analytics and Rltx")
+    read_sheet_safe("Analytics & Rltx","Analytics and Rltx")
   )
 
   if (is.null(fresh) || nrow(fresh) == 0) {
