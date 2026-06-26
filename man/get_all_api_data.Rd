@@ -6,7 +6,7 @@
 \usage{
 get_all_api_data(
   key = Sys.getenv("lakeAPIkey"),
-  datasets = .api_registry$dataset[!is.na(.api_registry$dataset)],
+  datasets = data_registry$dataset[!is.na(data_registry$dataset)],
   type = "small",
   structure = "csv"
 )

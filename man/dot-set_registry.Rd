@@ -2,11 +2,11 @@
 % Please edit documentation in R/aaa_utils.R
 \name{.set_registry}
 \alias{.set_registry}
-\title{Assign a new value to .api_registry in the package namespace}
+\title{Assign a new value to data_registry in the package namespace}
 \usage{
 .set_registry(value)
 }
 \description{
-Assign a new value to .api_registry in the package namespace
+Assign a new value to data_registry in the package namespace
 }
 \keyword{internal}

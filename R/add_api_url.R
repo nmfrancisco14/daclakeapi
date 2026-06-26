@@ -13,7 +13,7 @@
 #' @return A tibble of all registered API endpoints.
 #' @export
 get_api_registry <- function() {
-  .api_registry
+  data_registry
 }
 
 
@@ -26,7 +26,7 @@ get_api_registry <- function() {
 #' @export
 get_api_url <- function(name) {
   if (is.numeric(name)) {
-    row <- .api_registry[name, ]
+    row <- data_registry[name, ]
     if (nrow(row) == 0) stop("Row index out of range: ", name)
   } else {
     # accepts dataset key OR short_endpoint
@@ -75,15 +75,15 @@ add_api_url <- function(dataset, api_link, label = dataset, type = "Custom",
   )
 
   # Replace existing row with same dataset name, or append
-  existing <- which(!is.na(.api_registry$dataset) &
-                      .api_registry$dataset == dataset)
+  existing <- which(!is.na(data_registry$dataset) &
+                      data_registry$dataset == dataset)
   if (length(existing) > 0) {
-    updated <- .api_registry
+    updated <- data_registry
     updated[existing[1], ] <- new_row
     .set_registry(updated)
     message("Updated existing entry: ", dataset)
   } else {
-    .set_registry(dplyr::bind_rows(.api_registry, new_row))
+    .set_registry(dplyr::bind_rows(data_registry, new_row))
     message("Added new entry: ", dataset)
   }
   invisible(NULL)
@@ -97,9 +97,9 @@ add_api_url <- function(dataset, api_link, label = dataset, type = "Custom",
 list_api_endpoints <- function(type = "dataset") {
 
   if (type =="dataset") {
-  .api_registry$dataset
+  data_registry$dataset
   } else if (type == "short_endpoint") {
-    .api_registry$short_endpoint
+    data_registry$short_endpoint
   } else {
     stop("Invalid type: ", type, ". Use 'dataset' or 'short_endpoint'.")
   }
@@ -114,8 +114,8 @@ list_api_endpoints <- function(type = "dataset") {
 #' @return `NULL` invisibly.
 #' @export
 reset_api_urls <- function() {
-  .set_registry(.default_api_registry)
-  message("API registry reset to defaults (", nrow(.api_registry), " entries).")
+  .set_registry(data_registry)
+  message("API registry reset to defaults (", nrow(data_registry), " entries).")
   invisible(NULL)
 }
 
@@ -166,7 +166,7 @@ view_site <- function(name, browser = FALSE) {
 #'
 #' @return `NULL` invisibly. The internal registry is updated in-place.
 #' @export
-update_registry <- function(gsheet_url = .GSHEET_URL) {
+update_registry <- function(gsheet_url = GSHEET_URL) {
   if (!requireNamespace("googlesheets4", quietly = TRUE))
     stop("Install googlesheets4: install.packages('googlesheets4')")
 
@@ -192,6 +192,7 @@ update_registry <- function(gsheet_url = .GSHEET_URL) {
       cat_col <- if (type_val == "Convergence") c("subtheme", "sub-theme", "sub theme") else c("categories")
 
       tibble::tibble(
+        dataset  = .col(df, "shortname"),
         label     = .col(df, "title of dataset"),
         type      = type_val,
         category  = .col(df, cat_col),
@@ -211,39 +212,43 @@ update_registry <- function(gsheet_url = .GSHEET_URL) {
 
   if (is.null(fresh) || nrow(fresh) == 0) {
     message("Registry update aborted: no data retrieved.")
-    return(invisible(.api_registry))
+    return(invisible(data_registry))
   }
 
   # --- Key stability: reuse existing keys matched by api_link ---
-  existing_keys <- .api_registry |>
+  existing_keys <- data_registry |>
     dplyr::select(api_link, dataset) |>
     dplyr::distinct()
 
-  fresh <- fresh |>
-    dplyr::left_join(existing_keys, by = "api_link") |>
-    dplyr::mutate(
-      dataset = dplyr::case_when(
-        # 1. preserved from existing registry (matched by api_link)
-        !is.na(dataset) ~ dataset,
-        # 2. override map (label-based fallback for known renames)
-        label %in% names(.DATASET_KEY_OVERRIDES) ~ unname(.DATASET_KEY_OVERRIDES[label]),
-        # 3. derive programmatically for brand-new entries
-        TRUE ~ .to_camel_case(label)
-      )
-    )
+  # fresh <- fresh |>
+  #   dplyr::left_join(existing_keys, by = "api_link") |>
+  #   dplyr::mutate(
+  #     dataset = dplyr::case_when(
+  #       # 1. preserved from existing registry (matched by api_link)
+  #       !is.na(dataset) ~ dataset,
+  #       # 2. override map (label-based fallback for known renames)
+  #       label %in% names(.DATASET_KEY_OVERRIDES) ~ unname(.DATASET_KEY_OVERRIDES[label]),
+  #       # 3. derive programmatically for brand-new entries
+  #       TRUE ~ .to_camel_case(label)
+  #     )
+  #   )
 
   # Append the Old API list from the default registry (always stable)
-  old_entries <- .default_api_registry |>
+  old_entries <- data_registry |>
     dplyr::filter(type == "Old API list") 
 
   updated <- dplyr::bind_rows(fresh, old_entries) |> 
     dplyr::mutate(
-      short_endpoint =dplyr::if_else(stringr::str_detect(api_link, "/dynamic/"),
-      stringr::str_extract(api_link, "(?<=dynamic/).*"),
-      stringr::str_extract(api_link, "(?<=api/).*"))
+      short_endpoint =basename(api_link)
     )
 
   # Deduplicate keys — tag duplicates with a numeric suffix
+
+  message("Detected ", sum(duplicated(updated$dataset))," dataset keys: ",
+  paste(updated$dataset[duplicated(updated$dataset)], collapse = ", "))
+
+  message("Deduplicating dataset keys by appending numeric suffixes for duplicates.")
+
   updated <- updated |>
     dplyr::group_by(dataset) |>
     dplyr::mutate(
@@ -255,6 +260,8 @@ update_registry <- function(gsheet_url = .GSHEET_URL) {
     dplyr::ungroup()
 
   .set_registry(updated)
-  message("Registry updated: ", nrow(.api_registry), " endpoints loaded.")
-  invisible(.api_registry)
+
+  message("Registry updated: ", nrow(data_registry), " endpoints loaded.")
+
+  invisible(data_registry)
 }

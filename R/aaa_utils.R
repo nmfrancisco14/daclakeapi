@@ -2,13 +2,13 @@
 # Registry setter — works in locked installed namespaces
 # ---------------------------------------------------------------------------
 
-#' Assign a new value to .api_registry in the package namespace
+#' Assign a new value to data_registry in the package namespace
 #' @keywords internal
 .set_registry <- function(value) {
   ns <- getNamespace("daclakeapi")
-  unlockBinding(".api_registry", ns)
-  assign(".api_registry", value, envir = ns)
-  lockBinding(".api_registry", ns)
+  unlockBinding("data_registry", ns)
+  assign("data_registry", value, envir = ns)
+  lockBinding("data_registry", ns)
   invisible(value)
 }
 
@@ -177,18 +177,18 @@
 #' row as a one-row tibble, or stops with an informative error.
 #'
 #' @param name Character. A dataset key or short_endpoint string.
-#' @return A one-row tibble from `.api_registry`.
+#' @return A one-row tibble from `data_registry`.
 #' @keywords internal
 .resolve_registry_row <- function(name) {
   # 1. try dataset key (primary)
-  row <- .api_registry[!is.na(.api_registry$dataset) &
-                         .api_registry$dataset == name, ]
+  row <- data_registry[!is.na(data_registry$dataset) &
+                         data_registry$dataset == name, ]
   if (nrow(row) > 0) return(row[1L, ])
 
   # 2. try short_endpoint (secondary)
-  if (!is.null(.api_registry$short_endpoint)) {
-    row <- .api_registry[!is.na(.api_registry$short_endpoint) &
-                           .api_registry$short_endpoint == name, ]
+  if (!is.null(data_registry$short_endpoint)) {
+    row <- data_registry[!is.na(data_registry$short_endpoint) &
+                           data_registry$short_endpoint == name, ]
     if (nrow(row) > 0) return(row[1L, ])
   }
 

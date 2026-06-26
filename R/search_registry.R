@@ -19,7 +19,7 @@ search_registry <- function(keywords, n = 5) {
     stop("`keywords` must be a non-empty character vector.")
 
   n <- if (n!="all") as.integer(n) else n
-  reg <- .api_registry
+  reg <- data_registry
 
   # Collapse all columns into one searchable string per row (lowercase)
   row_text <- apply(reg, 1, function(row) {

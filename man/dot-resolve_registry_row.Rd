@@ -10,7 +10,7 @@
 \item{name}{Character. A dataset key or short_endpoint string.}
 }
 \value{
-A one-row tibble from \code{.api_registry}.
+A one-row tibble from \code{data_registry}.
 }
 \description{
 Looks up \code{name} first against \code{dataset} (camelCase key), then against

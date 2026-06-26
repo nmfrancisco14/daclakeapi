@@ -20,13 +20,13 @@
 #'   Names correspond to the `dataset` column of the registry.
 #' @export
 get_all_api_data <- function(key       = Sys.getenv("lakeAPIkey"),
-                             datasets  = .api_registry$dataset[!is.na(.api_registry$dataset)],
+                             datasets  = data_registry$dataset[!is.na(data_registry$dataset)],
                              type      = "small",
                              structure = "csv") {
 
   data_list <- purrr::map(datasets, function(nm) {
-    row <- .api_registry[!is.na(.api_registry$dataset) &
-                           .api_registry$dataset == nm, ]
+    row <- data_registry[!is.na(data_registry$dataset) &
+                           data_registry$dataset == nm, ]
 
     if (nrow(row) == 0) {
       message("[daclakeapi] Skipping unknown dataset: ", nm)

@@ -4,7 +4,7 @@
 \alias{update_registry}
 \title{Update the API registry by re-fetching the source Google Sheet}
 \usage{
-update_registry(gsheet_url = .GSHEET_URL)
+update_registry(gsheet_url = GSHEET_URL)
 }
 \arguments{
 \item{gsheet_url}{Character. The Google Sheet URL to fetch the registry from.
